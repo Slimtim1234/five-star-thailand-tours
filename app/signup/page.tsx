@@ -2,16 +2,18 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import Link from 'next/link'
 
 export default function SignUp() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     try {
       const res = await fetch('/api/register', {
         method: 'POST',
@@ -20,24 +22,14 @@ export default function SignUp() {
       })
 
       if (res.ok) {
-        const result = await signIn('credentials', {
-          redirect: false,
-          email,
-          password,
-        })
-
-        if (!result?.error) {
-          router.push('/')
-        } else {
-          // Handle sign-in error
-          console.error(result.error)
-        }
+        router.push('/signin?message=Account created successfully. Please sign in.')
       } else {
-        // Handle registration error
-        console.error('Registration failed')
+        const errorData = await res.json()
+        setError(errorData.message + (errorData.error ? `: ${errorData.error}` : ''))
       }
     } catch (error) {
       console.error('An unexpected error occurred:', error)
+      setError('An unexpected error occurred. Please try again.')
     }
   }
 
@@ -45,6 +37,7 @@ export default function SignUp() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="px-8 py-6 mt-4 text-left bg-white shadow-lg">
         <h3 className="text-2xl font-bold text-center">Sign up for an account</h3>
+        {error && <p className="text-red-500 text-center">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mt-4">
             <div>
@@ -85,6 +78,12 @@ export default function SignUp() {
             </div>
           </div>
         </form>
+        <div className="mt-6 text-grey-dark">
+          Already have an account?{" "}
+          <Link href="/signin" className="text-blue-600 hover:underline">
+            Sign in
+          </Link>
+        </div>
       </div>
     </div>
   )
