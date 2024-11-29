@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
+import bcrypt from "bcrypt"
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -23,12 +24,16 @@ export const authOptions: NextAuthOptions = {
           },
         })
 
-        if (!user) {
+        if (!user || !user.password) {
           return null
         }
 
-        // In a real application, you would check the password here.
-        // For this example, we're just checking if the email exists.
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+
+        if (!isPasswordValid) {
+          return null
+        }
+
         return {
           id: user.id,
           email: user.email,

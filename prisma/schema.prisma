@@ -42,6 +42,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  bookings      Booking[]
 }
 
 model VerificationToken {
@@ -50,5 +51,26 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Tour {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  location    String
+  duration    Int
+  maxGroupSize Int
+  bookings    Booking[]
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  userId    String
+  tourId    String
+  date      DateTime
+  status    String
+  user      User     @relation(fields: [userId], references: [id])
+  tour      Tour     @relation(fields: [tourId], references: [id])
 }
 
