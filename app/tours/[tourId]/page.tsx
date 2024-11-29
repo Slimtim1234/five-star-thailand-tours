@@ -1,31 +1,43 @@
 import { notFound } from 'next/navigation'
 
 // This would typically come from a database
-const tours = {
-  'phi-phi-a': {
-    name: 'Phi Phi Package A',
-    description: 'A wonderful tour of Phi Phi Islands',
-    price: 1000,
-  },
-  'phi-phi-b': {
-    name: 'Phi Phi Package B',
-    description: 'An extended tour of Phi Phi Islands',
-    price: 1500,
-  },
-  'james-bond-a': {
-    name: 'James Bond Package A',
-    description: 'Visit the iconic James Bond Island',
-    price: 1200,
-  },
-  'james-bond-b': {
-    name: 'James Bond Package B',
-    description: 'Explore James Bond Island and surrounding areas',
-    price: 1800,
-  },
+const getTourData = async (tourId: string) => {
+  // Simulating an async operation
+  await new Promise(resolve => setTimeout(resolve, 100))
+
+  const tours = {
+    'phi-phi-a': {
+      name: 'Phi Phi Package A',
+      description: 'A wonderful tour of Phi Phi Islands',
+      price: 1000,
+    },
+    'phi-phi-b': {
+      name: 'Phi Phi Package B',
+      description: 'An extended tour of Phi Phi Islands',
+      price: 1500,
+    },
+    'james-bond-a': {
+      name: 'James Bond Package A',
+      description: 'Visit the iconic James Bond Island',
+      price: 1200,
+    },
+    'james-bond-b': {
+      name: 'James Bond Package B',
+      description: 'Explore James Bond Island and surrounding areas',
+      price: 1800,
+    },
+  }
+
+  return tours[tourId as keyof typeof tours]
 }
 
-export default function TourPage({ params }: { params: { tourId: string } }) {
-  const tour = tours[params.tourId as keyof typeof tours]
+export default async function TourPage({
+  params,
+}: {
+  params: Promise<{ tourId: string }>
+}) {
+  const { tourId } = await params
+  const tour = await getTourData(tourId)
 
   if (!tour) {
     notFound()
